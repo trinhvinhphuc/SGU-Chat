@@ -12,7 +12,6 @@ namespace Server
     public partial class Form1 : Form
     {
         bool active = true;
-        String IP = null, message;
         IPEndPoint iep;
         Socket server, client;
         Dictionary<string, string> USER;
@@ -32,11 +31,10 @@ namespace Server
 
         private void startServer()
         {
-            iep = new IPEndPoint(IPAddress.Parse(IP), Int32.Parse(txtPort.Text));
+            iep = new IPEndPoint(IPAddress.Parse(txtIP.Text), Int32.Parse(txtPort.Text));
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            message = "Start accept connect from client!";
-            appendInTextBox(txtMessage, message);
+            appendInTextBox(txtMessage, "Start accept connect from client!");
             changeButtonEnable(startbtn, false);
             changeButtonEnable(stopbtn, true);
 
@@ -126,40 +124,47 @@ namespace Server
                 bool threadActive = true;
                 do
                 {
-                    byte[] data = new byte[1024];
-                    int recv = client.Receive(data);
-                    if (recv == 0) continue;
-                    String s = Encoding.ASCII.GetString(data, 0, recv);
-                    Common.Json infoJson = JsonSerializer.Deserialize<Common.Json>(s);
-
-                    switch (infoJson.type)
+                    try
                     {
-                        case "MESSAGE":
-                            reponseMessage(infoJson, socket);
-                            break;
-                        case "SHUTDOWN":
-                            if (infoJson.content != null && CLIENT.ContainsKey(infoJson.content))
-                            {
-                                Json close = new Json("SHUTDOWN_FEEDBACK", "TRUE");
-                                sendJson(close, socket);
+                        byte[] data = new byte[1024];
+                        int recv = socket.Receive(data);
+                        if (recv == 0) continue;
+                        String s = Encoding.ASCII.GetString(data, 0, recv);
+                        Common.Json infoJson = JsonSerializer.Deserialize<Common.Json>(s);
 
-                                CLIENT.Remove(infoJson.content);
-                                appendInTextBox(txtMessage, infoJson.content + " logged out!");
+                        switch (infoJson.type)
+                        {
+                            case "MESSAGE":
+                                reponseMessage(infoJson, socket);
+                                break;
+                            case "SHUTDOWN":
+                                if (infoJson.content != null && CLIENT.ContainsKey(infoJson.content))
+                                {
+                                    Json close = new Json("SHUTDOWN_FEEDBACK", "TRUE");
+                                    sendJson(close, socket);
 
-                                client.Shutdown(SocketShutdown.Both);
-                                client.Close();
-                                threadActive = false;
-                            }
-                            else
-                            {
-                                Json close = new Json("SHUTDOWN_FEEDBACK", "FALSE");
-                                sendJson(close, socket);
-                                appendInTextBox(txtMessage, infoJson.content + " can not logged out!");
-                            }                           
-                            break;
+                                    CLIENT.Remove(infoJson.content);
+                                    appendInTextBox(txtMessage, infoJson.content + " logged out!");
+
+                                    client.Shutdown(SocketShutdown.Both);
+                                    client.Close();
+                                    threadActive = false;
+                                }
+                                else
+                                {
+                                    Json close = new Json("SHUTDOWN_FEEDBACK", "FALSE");
+                                    sendJson(close, socket);
+                                    appendInTextBox(txtMessage, infoJson.content + " can not logged out!");
+                                }
+                                break;
+                        }
                     }
+                    catch (Exception)
+                    {
+                        threadActive = false;
+                    }                    
                 }
-                while (threadActive);
+                while (threadActive && socket != null);
             });
             clientThread.Start();
         }
@@ -199,6 +204,7 @@ namespace Server
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            String IP = null;
             var host = Dns.GetHostByName(Dns.GetHostName());
             foreach (var ip in host.AddressList)
             {
@@ -209,9 +215,7 @@ namespace Server
             }
             if (IP == null)
             {
-                message = "No network adapters with an IPv4 address in the system!";
-                string title = "Error";
-                MessageBox.Show(message, title);
+                MessageBox.Show("No network adapters with an IPv4 address in the system!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             txtIP.Text = IP;

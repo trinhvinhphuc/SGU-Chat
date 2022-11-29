@@ -53,13 +53,7 @@ namespace Sign_In_Form
                 ofd.Filter = "jpg files(*.jpg)|*.jpg| PNG files(*.png)|*.png| All files(*.*)|*.*";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    imgLink = ofd.FileName;
 
-                    listView1.Items.Add("test", count);
-                    imgs.Images.Add(Bitmap.FromFile(@imgLink));
-                    listView1.SmallImageList = imgs;
-
-                    count++;
                 }
             }
             catch (Exception)
@@ -70,11 +64,6 @@ namespace Sign_In_Form
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            listView1.View = View.Details;
-            listView1.Columns.Add("Message", 200);
-
-            imgs.ImageSize = new Size(50, 50);
-
             var mainThread = new Thread(() => receiveTheard(server));
             mainThread.Start();
         }
@@ -95,7 +84,7 @@ namespace Sign_In_Form
                         Common.Messages? message = JsonSerializer.Deserialize<Common.Messages?>(infoJson.content);
                         if (message != null)
                         {
-                            appendInListView(listView1, message.sender + ": " + message.message);
+                            AddItemListbox(boxDialog, message.sender + ": " + message.message);
                         }
                         break;
                     case "SHUTDOWN_FEEDBACK":
@@ -143,20 +132,9 @@ namespace Sign_In_Form
             //Environment.Exit(0);
         }
 
-        private void appendInListView(System.Windows.Forms.ListView listView, String text)
+        private void AddItemListbox(ListBox listBox, String text)
         {
-            if (listView.InvokeRequired)
-            {
-                listView.Invoke(new MethodInvoker(delegate
-                {
-                    listView.Items.Add(text);
-
-                }));
-            }
-            else
-            {
-                listView.Items.Add(text);
-            }
+            this.Invoke((MethodInvoker)(() => listBox.Items.Add(text)));
         }
     }
 }

@@ -42,7 +42,7 @@
             this.logoutBtn = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.txtReceiver = new System.Windows.Forms.TextBox();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.boxDialog = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.picturebtn)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -189,13 +189,14 @@
             this.txtReceiver.Size = new System.Drawing.Size(300, 29);
             this.txtReceiver.TabIndex = 0;
             // 
-            // listView1
+            // boxDialog
             // 
-            this.listView1.Location = new System.Drawing.Point(12, 41);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(776, 260);
-            this.listView1.TabIndex = 8;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.boxDialog.FormattingEnabled = true;
+            this.boxDialog.ItemHeight = 15;
+            this.boxDialog.Location = new System.Drawing.Point(18, 41);
+            this.boxDialog.Name = "boxDialog";
+            this.boxDialog.Size = new System.Drawing.Size(764, 274);
+            this.boxDialog.TabIndex = 9;
             // 
             // MainForm
             // 
@@ -203,7 +204,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(800, 500);
-            this.Controls.Add(this.listView1);
+            this.Controls.Add(this.boxDialog);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.picturebtn);
             this.Controls.Add(this.txtmessage);
@@ -239,6 +240,6 @@
         private Button logoutBtn;
         private Label label2;
         private TextBox txtReceiver;
-        private ListView listView1;
+        private ListBox boxDialog;
     }
 }
